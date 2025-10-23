@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>Dự đoán LUCKY WIN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <link rel="icon" href="robot_icon.gif" type="image/png" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <script>
+        // Anti-DevTools Script (Giữ nguyên)
+        (function() {
+            const devtools = { isOpen: false, orientation: undefined };
+            const threshold = 160;
+            const emitEvent = (isOpen, orientation) => {
+                window.dispatchEvent(new CustomEvent('devtoolschange', { detail: { isOpen, orientation } }));
+            };
+            const main = ({emitEvents = true} = {}) => {
+                const now = Date.now();
+                debugger;
+                const diff = Date.now() - now;
+                if (diff > threshold) {
+                    if (!devtools.isOpen) { emitEvent(true); }
+                    devtools.isOpen = true;
+                } else {
+                    if (devtools.isOpen) { emitEvent(false); }
+                    devtools.isOpen = false;
+                }
+            };
+            main({emitEvents: false});
+            setInterval(main, 500);
+            window.addEventListener('devtoolschange', event => {
+                if (event.detail.isOpen) {
+                    document.body.innerHTML = `<div style="background-color: #000; color: red; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; justify-content: center; align-items: center; font-size: 24px; font-family: sans-serif;">PHÁT HIỆN HÀNH VI CỐ TÌNH CAN THIỆP HỆ THỐNG!</div>`;
+                    setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+                }
+            });
+            window.addEventListener('contextmenu', e => e.preventDefault(), false);
+            window.addEventListener('keydown', e => {
+                if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
+                    e.preventDefault();
+                }
+            });
+        })();
+    </script>
+
+    <style>
+        /* === Biến màu & Reset CSS === */
+        :root {
+            /* Biến cho Tool dự đoán */
+            --bg-color: #0d1117;
+            --primary-gold: #ffd700;
+            --text-light: #e6edf3;
+            --text-secondary: #a0a0a0;
+            --card-bg: rgba(28, 35, 43, 0.8);
+            --border-color: rgba(255, 215, 0, 0.3);
+            --highlight-blue: #4dccff;
+            --exit-btn-bg: linear-gradient(135deg, #ff416c, #ff4b2b);
+
+            /* Biến cho màn hình Login (ENHANCED) */
+            --primary-neon: #00ffea;
+            --secondary-glow: #ff00ff;
+            --dark-bg-login: #050a0f;
+            --glow-color: rgba(0, 255, 234, 0.75);
+            --grid-color: rgba(0, 255, 234, 0.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        .hidden { display: none !important; }
+
+        /* === Body & Màn hình Login (ENHANCED) === */
+        body {
+            background-color: var(--dark-bg-login);
+            color: #e0e0e0;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: moveGrid 10s linear infinite;
+        }
+        
+        body.game-active {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-light);
+            overflow: hidden;
+            animation: none; /* Tắt animation lưới */
+        }
+
+        .login-container {
+            position: relative; z-index: 2; padding: 20px; width: 100%;
+        }
+
+        .entry-form {
+            background: rgba(13, 17, 23, 0.9);
+            border: 2px solid var(--primary-neon);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 12px; padding: 40px; width: 90%; max-width: 450px;
+            margin: 0 auto;
+            box-shadow: 0 0 20px var(--glow-color), 0 0 40px rgba(0, 255, 234, 0.5), inset 0 0 10px var(--primary-neon);
+            transition: all 0.3s ease;
+        }
+
+        .title {
+            font-size: clamp(30px, 6vw, 40px); color: #fff; text-transform: uppercase;
+            letter-spacing: 4px; text-align: center;
+            text-shadow: 0 0 10px var(--primary-neon), 0 0 20px var(--secondary-glow);
+            margin-bottom: 35px; border-bottom: 2px solid rgba(0, 255, 234, 0.3); padding-bottom: 15px;
+        }
+
+        .input-group { margin-bottom: 30px; }
+        .input-group input {
+            padding: 15px 20px; width: 100%; border: 1px solid var(--secondary-glow);
+            border-radius: 8px; background-color: rgba(0, 0, 0, 0.6); color: var(--primary-neon);
+            font-family: 'Poppins', sans-serif; font-size: 17px; outline: none; transition: all 0.3s ease;
+        }
+        .input-group input:focus { 
+            border-color: var(--primary-neon); 
+            box-shadow: 0 0 15px var(--glow-color); 
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .input-group input::placeholder { color: rgba(255, 255, 255, 0.5); font-style: italic; }
+
+        .submit-button {
+            display: block; padding: 15px 20px; 
+            background: linear-gradient(90deg, var(--primary-neon), var(--secondary-glow));
+            border: none; border-radius: 8px; color: #050a0f;
+            font-weight: 700; font-size: 20px; font-family: 'Orbitron', sans-serif;
+            text-transform: uppercase; cursor: pointer; transition: all 0.3s ease;
+            width: 100%; letter-spacing: 3px; 
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 255, 234, 0.5);
+        }
+        .submit-button:hover {
+            box-shadow: 0 0 30px var(--glow-color), 0 0 50px var(--secondary-glow);
+            transform: scale(1.02);
+        }
+
+        /* === Giao diện Tool & Game === */
+        iframe { position: fixed; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 1; }
+        
+        #robotBox {
+            position: fixed; top: 80px; left: 20px; z-index: 9999; user-select: none;
+            display: flex; align-items: flex-start; gap: 12px; cursor: move;
+            touch-action: none; animation: float 3s ease-in-out infinite;
+        }
+        #robotIcon {
+            width: 70px; height: auto; object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+        }
+        
+        #predictionCard {
+            background: var(--card-bg); backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); color: var(--text-light);
+            padding: 12px 18px; border-radius: 20px; max-width: 300px;
+            border: 1px solid var(--border-color); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            font-size: 14px; text-align: left;
+        }
+        #phien { font-size: 16px; font-weight: 700; color: var(--primary-gold); text-shadow: 0 0 5px rgba(255, 215, 0, 0.7); }
+        /* Tăng cỡ chữ cho phần dự đoán chính */
+        #duDoan { margin-top: 5px; font-size: 15px; line-height: 1.4; font-weight: 700; } 
+        #cauStatus { margin-top: 8px; font-size: 12px; color: var(--text-secondary); }
+        #copyright {
+            position: fixed; bottom: 10px; right: 10px; color: var(--text-secondary); font-size: 11px;
+            background: rgba(13, 17, 23, 0.6); padding: 4px 8px; border-radius: 5px;
+            z-index: 9999; user-select: none; opacity: 0.7;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 8px; position: fixed; top: 15px; left: 15px;
+            padding: 10px 20px; background: var(--exit-btn-bg); color: white; font-weight: 600;
+            font-size: 15px; text-decoration: none; border: none; border-radius: 50px;
+            cursor: pointer; z-index: 10000; box-shadow: 0 5px 20px rgba(255, 65, 108, 0.4);
+            transition: all 0.3s ease; user-select: none;
+        }
+        .back-btn:hover {
+            transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 25px rgba(255, 75, 43, 0.6);
+        }
+        
+        /* CẬP NHẬT MÀU CHO DỰ ĐOÁN */
+        .du-doan-tai { color: #ff5757 !important; }
+        .du-doan-xiu { color: #4dccff !important; }
+        .ty-le { color: var(--primary-gold); font-weight: 700; }
+
+        /* === Keyframes (Cập nhật cho hiệu ứng nhấp nháy tỷ lệ) === */
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-8px); } 100% { transform: translateY(0px); } }
+        @keyframes moveGrid { from { background-position: 0 0; } to { background-position: -80px -80px; } }
+        @keyframes pulseGlow {
+            from { box-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color), inset 0 0 5px var(--primary-neon); }
+            to { box-shadow: 0 0 20px var(--glow-color), 0 0 40px var(--glow-color), inset 0 0 10px var(--primary-neon); }
+        }
+        @keyframes glitch { 2%, 64% { transform: translate(2px, 0) skew(0deg); } 4%, 60% { transform: translate(-2px, 0) skew(0deg); } 62% { transform: translate(0, 0) skew(5deg); } }
+        @keyframes blinkGlow { 
+            0%, 100% { opacity: 1; transform: scale(1.0); } 
+            50% { opacity: 0.7; transform: scale(1.05); } 
+        }
+        .glow-blink {
+            animation: blinkGlow 1.5s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+    // --- CƠ CHẾ XÁC THỰC MỚI (Giữ nguyên) ---
+    (function() {
+        const userJson = sessionStorage.getItem('currentUser');
+        let user = userJson ? JSON.parse(userJson) : null;
+
+        if (!user || !user.activeKey) {
+            document.body.style.display = 'none';
+            Swal.fire({
+                background: '#0a0a0f', color: '#00ffea', title: 'ACCESS DENIED',
+                text: 'Authentication required. Redirecting to login...', icon: 'error',
+                iconColor: '#ff00ff', confirmButtonText: 'OK', confirmButtonColor: '#ff00ff',
+                timer: 2500, allowOutsideClick: false, showConfirmButton: false, timerProgressBar: true,
+                customClass: { popup: 'swal-wide' }
+            }).then(() => { window.location.href = 'index.html'; });
+            const style = document.createElement('style');
+            style.innerHTML = `.swal-progress-bar-hacker { background-color: #ff00ff !important; }`;
+            document.head.appendChild(style);
+            throw new Error("Authentication failed. Halting script execution.");
+        }
+    })();
+</script>
+
+<div class="login-container" id="login-screen">
+    <div class="entry-form">
+        <h1 class="title">HỆ THỐNG DỰ ĐOÁN V.I.P</h1>
+        <form id="entry-form">
+            <div class="input-group">
+                <input type="url" id="linkInput" placeholder="Nhập link game Lucky Win..." required/>
+            </div>
+            <button type="submit" class="submit-button">
+                <span>KICK-START ⚡️</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<div id="game-screen" class="hidden">
+    <a href="menugame.html" class="back-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+        </svg>
+        Quay lại Menu
+    </a>
+
+    <iframe id="gameIframe" src="" allowfullscreen></iframe>
+
+    <div id="robotBox" title="Kéo thả khung dự đoán">
+        <img id="robotIcon" src="https://i.postimg.cc/1zLnNsCZ/IMG-3575.gif" alt="Robot" />
+        <div id="predictionCard">
+            <div id="phien">#...</div>
+            <div id="duDoan">Đang khởi động...</div>
+            <div id="cauStatus">...</div>
+        </div>
+    </div>
+
+    <audio id="soundTai" src="https://assets.mixkit.co/sfx/preview/mixkit-game-ball-tap-2073.mp3" preload="auto"></audio>
+    <audio id="soundXiu" src="https://assets.mixkit.co/sfx/preview/mixkit-game-click-1114.mp3" preload="auto"></audio>
+
+    <div id="copyright"></div>
+</div>
+
+<script>
+    const LUCK_API = "luck.php";
+    let lastUpdatedPhien = null;
+    let predictionTimeoutId = null;
+    const PREDICTION_DELAY_MS = 2000; 
+    
+    // =================================================================================
+    // 5 THUẬT TOÁN CỐT LÕI MỚI (VIP PRO ALGORITHMS) - GIỮ NGUYÊN
+    // =================================================================================
+
+    // ⭐ ALGO 1: MATRIX COUNTER (Phân tích cân bằng theo cặp 3 gần nhất)
+    function algo1_matrixCounter(results, n = 9) {
+        if (results.length < n) return results.at(-1) || "Tài";
+        const recent = results.slice(-n); // Phân tích 9 phiên gần nhất
+        let taiCount = 0;
+        let xiuCount = 0;
+        
+        for (let i = 0; i < n - 2; i += 3) {
+            const block = recent.slice(i, i + 3);
+            if (block.length === 3) {
+                const T = block.filter(r => r === 'Tài').length;
+                const X = 3 - T;
+                if (T > X) taiCount++;
+                else if (X > T) xiuCount++;
+            }
+        }
+        
+        if (taiCount > xiuCount) return "Tài";
+        if (xiuCount > taiCount) return "Xỉu";
+        
+        // Nếu cân bằng, theo dõi xu hướng ngắn
+        return results.at(-1) || "Tài";
+    }
+
+    // ⭐ ALGO 2: FLASH 3-CHAIN PREDICTOR (Dự đoán xu hướng cực ngắn và chống bệt ngắn)
+    function algo2_flash3Chain(results) {
+        if (results.length < 3) return results.at(-1) || "Tài";
+        const [r3, r2, r1] = results.slice(-3);
+        
+        // Cấu trúc 3-1: TXXT -> T (Bệt 3) -> Dự đoán phá bệt: X
+        if (r1 === r2 && r1 !== r3) { 
+            return r1 === "Tài" ? "Xỉu" : "Tài";
+        }
+        
+        // Cấu trúc 1-1-1: TXT -> X (1-1 tiếp)
+        if (r1 !== r2 && r2 !== r3) {
+            return r1 === "Tài" ? "Xỉu" : "Tài";
+        }
+
+        // Mặc định bệt (T-T-T) -> Phá bệt: X
+        if (r1 === r2 && r2 === r3) {
+            return r1 === "Tài" ? "Xỉu" : "Tài"; 
+        }
+
+        return results.at(-1) || "Tài";
+    }
+
+    // ⭐ ALGO 3: ANTI-REVERSE MOMENTUM (Ngăn chặn việc đảo cầu liên tục)
+    function algo3_antiReverseMomentum(results, chainLength = 6) {
+        if (results.length < chainLength) return results.at(-1) || "Tài";
+        const lastChain = results.slice(-chainLength);
+        
+        let alternatingCount = 0;
+        for (let i = 1; i < chainLength; i++) {
+            if (lastChain[i] !== lastChain[i - 1]) {
+                alternatingCount++;
+            }
+        }
+        
+        // Nếu có 5 hoặc 6 lần đổi chiều (1-1 dài: TXTX hoặc TXT)
+        if (alternatingCount >= 5) {
+            // Đã quá 1-1, dự đoán kết quả hiện tại bệt tiếp
+            return results.at(-1) || "Tài"; 
+        }
+        
+        return results.at(-1) === 'Tài' ? 'Xỉu' : 'Tài'; // Mặc định đảo
+    }
+
+    // ⭐ ALGO 4: HIGH DEVIATION BREAK (Phá cầu bệt vượt mức)
+    function algo4_highDeviationBreak(results, minLen = 5, historyLen = 20) {
+        if (results.length < historyLen) return results.at(-1) || "Tài";
+        
+        const last = results.at(-1);
+        let currentChain = 0;
+        for (let i = results.length - 1; i >= 0; i--) {
+            if (results[i] === last) currentChain++;
+            else break;
+        }
+
+        // Nếu cầu hiện tại chưa đủ dài để xét (ví dụ < 5)
+        if (currentChain < minLen) return last;
+
+        const recent = results.slice(-historyLen);
+        const maxTaiChain = recent.reduce((max, curr, i, arr) => (curr === 'Tài' && arr[i-1] !== 'Tài' ? Math.max(max, arr.slice(i).findIndex(r => r !== 'Tài')) : max), 0) || 0;
+        const maxXiuChain = recent.reduce((max, curr, i, arr) => (curr === 'Xỉu' && arr[i-1] !== 'Xỉu' ? Math.max(max, arr.slice(i).findIndex(r => r !== 'Xỉu')) : max), 0) || 0;
+
+        const maxObservedChain = Math.max(maxTaiChain, maxXiuChain);
+        
+        // Nếu cầu hiện tại vượt quá 1.5 lần cầu dài nhất đã từng thấy -> Phá cầu
+        if (currentChain > maxObservedChain * 1.5 && currentChain > 7) {
+            return last === 'Tài' ? 'Xỉu' : 'Tài';
+        }
+
+        return last; // Nếu chưa đủ dài/quá mức, tiếp tục bệt
+    }
+
+    // ⭐ ALGO 5: FINAL SHORT-TERM SWING (Lướt theo dao động ngắn hạn 2 phiên)
+    function algo5_finalShortTermSwing(results) {
+        if (results.length < 2) return results.at(-1) || "Tài";
+        const last = results.at(-1);
+        const secondLast = results.at(-2);
+        
+        // Nếu đang là cầu bệt 2 (T-T, X-X) -> Tiếp tục bệt
+        if (last === secondLast) {
+            return last; 
+        }
+        
+        // Nếu đang là cầu 1-1 (T-X) -> Chuyển hướng
+        return last === 'Tài' ? 'Xỉu' : 'Tài';
+    }
+
+
+    // =================================================================================
+    // HÀM TỔNG HỢP VÀ GỌI HÀM DỰ ĐOÁN CUỐI CÙNG (HYBRID VOTE)
+    // CẬP NHẬT: TỶ LỆ NGẪU NHIÊN V5.0
+    // =================================================================================
+
+    function hybridVote(results) {
+        const data = (results || []).filter(r => r === "Tài" || r === "Xỉu");
+        
+        // TRỌNG SỐ CHO 5 THUẬT TOÁN VIP PRO
+        const algorithms = [
+            { func: algo1_matrixCounter, weight: 25 },
+            { func: algo2_flash3Chain, weight: 20 },
+            { func: algo3_antiReverseMomentum, weight: 25 },
+            { func: algo4_highDeviationBreak, weight: 15 },
+            { func: algo5_finalShortTermSwing, weight: 15 }
+        ];
+        
+        let taiScore = 0;
+        let xiuScore = 0;
+        let totalWeight = 0;
+        
+        for (const algo of algorithms) {
+            const result = algo.func(data);
+            totalWeight += algo.weight;
+            if (result === "Tài") taiScore += algo.weight; 
+            else xiuScore += algo.weight;
+        }
+
+        const finalPrediction = taiScore >= xiuScore ? "Tài" : "Xỉu";
+        const winningScore = Math.max(taiScore, xiuScore);
+        const losingScore = Math.min(taiScore, xiuScore);
+
+        let finalProbability = 0;
+        
+        if (totalWeight > 0) {
+            // TÍNH TOÁN XÁC SUẤT CƠ BẢN (TỶ LỆ THÔ)
+            finalProbability = (winningScore / totalWeight) * 100;
+        } else {
+            finalProbability = 50.0;
+        }
+        
+        // --- CƠ CHẾ TĂNG CƯỜNG ĐỘ PHÂN CỰC (POLARIZATION) VÀ LÀM ĐẸP TỶ LỆ ---
+        if (data.length >= 30) {
+            const deviation = Math.abs(finalProbability - 50.0); 
+            // HỆ SỐ PHÂN CỰC
+            const polarizationFactor = 1.85; 
+            
+            // Áp dụng hàm mũ (tăng tốc) cho độ lệch
+            const polarizedDeviation = Math.min(50, Math.pow(deviation, polarizationFactor) / Math.pow(50, polarizationFactor - 1));
+            
+            // Tính toán lại tỷ lệ cuối cùng
+            if (finalProbability >= 50.0) {
+                finalProbability = 50.0 + polarizedDeviation;
+            } else {
+                finalProbability = 50.0 - polarizedDeviation;
+            }
+        } else {
+            // Khi thiếu dữ liệu (<30 phiên), tỷ lệ tối đa là 65%
+            finalProbability = Math.min(65.0, finalProbability);
+        }
+        
+        // --- BƯỚC MỚI: NGẪU NHIÊN HÓA TINH VI (SUBTLE RANDOMIZATION) ---
+        // Thêm một giá trị ngẫu nhiên nhỏ từ -0.5 đến +0.5
+        const randomShift = (Math.random() - 0.5) * 1.0; 
+        finalProbability += randomShift;
+        // Đảm bảo sau ngẫu nhiên, tỷ lệ vẫn hướng về dự đoán chiến thắng
+        if (finalPrediction === 'Tài' && finalProbability < 50) finalProbability = 50.1;
+        if (finalPrediction === 'Xỉu' && finalProbability > 50) finalProbability = 49.9;
+
+
+        // --- GIỚI HẠN CUỐI CÙNG VÀ LÀM TRÒN ---
+        
+        finalProbability = Math.min(99.9, finalProbability); 
+        finalProbability = Math.max(1.0, finalProbability); 
+
+        // Nếu điểm Tài = điểm Xỉu, tỷ lệ phải là 50.0
+        if (taiScore === xiuScore || totalWeight === 0) {
+            finalProbability = 50.0;
+        }
+        
+        // Làm tròn đến 1 chữ số thập phân (để tỷ lệ trông "đẹp" hơn: 75.1, 82.5, ...)
+        finalProbability = Math.round(finalProbability * 10) / 10;
+        
+        return {
+            prediction: finalPrediction,
+            probability: finalProbability
+        };
+    }
+
+    // =================================================================================
+    // CÁC HÀM CÒN LẠI (GIỮ NGUYÊN)
+    // =================================================================================
+
+
+    function runTool() {
+        // THÔNG BÁO CHÚC BẠN THẮNG LỚN
+        Swal.fire({
+            background: '#0d1117', color: '#00ffea', title: '⭐ KÍCH HOẠT HỆ THỐNG VIP PRO V5.0 ⭐',
+            html: 'Đã cập nhật **Ngẫu nhiên hóa Tinh vi**.<br> **Tỷ lệ sẽ thay đổi linh hoạt mỗi phiên!**', 
+            icon: 'success',
+            iconColor: '#ffd700', confirmButtonText: 'BẮT ĐẦU', confirmButtonColor: '#00ffea',
+            timer: 3000, timerProgressBar: true,
+            customClass: { popup: 'swal-wide' }
+        });
+        
+        fetchData();
+        // Tần suất gọi API 1s
+        setInterval(fetchData, 1000); 
+
+        // Logic kéo thả robot (Giữ nguyên)
+        const box = document.getElementById("robotBox");
+        let isDragging = false, offsetX = 0, offsetY = 0;
+        const startDrag = (e) => {
+            isDragging = true;
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+            offsetX = clientX - box.offsetLeft;
+            offsetY = clientY - box.offsetTop;
+        };
+        const drag = (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                box.style.left = (clientX - offsetX) + "px";
+                box.style.top = (clientY - offsetY) + "px";
+            }
+        };
+        const endDrag = () => { isDragging = false; };
+        box.addEventListener("mousedown", startDrag);
+        document.addEventListener("mousemove", drag);
+        document.addEventListener("mouseup", endDrag);
+        box.addEventListener("touchstart", startDrag, { passive: false });
+        document.addEventListener("touchmove", drag, { passive: false });
+        document.addEventListener("touchend", endDrag);
+    }
+    
+    async function fetchData() {
+        try {
+            const apiUrl = LUCK_API + '?t=' + Date.now();  
+            const res = await fetch(apiUrl);
+            
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({ error: "Lỗi không xác định." }));
+                throw new Error(errorData.error || `Lỗi HTTP: ${res.status}`);
+            }
+            
+            const rawData = await res.json();
+            
+            let currentPhien = null;
+            let previousResult = null;
+            let fullHistory = [];
+
+            // Xử lý dữ liệu API
+            if (Array.isArray(rawData)) {
+                const latestCompletedSession = rawData.find(item => item.phien && item.ket_qua);
+                if (latestCompletedSession) {
+                    currentPhien = latestCompletedSession.phien;
+                    previousResult = latestCompletedSession.ket_qua;
+                    fullHistory = rawData
+                        .map(item => item.ket_qua)
+                        .filter(r => r === 'Tài' || r === 'Xỉu')
+                        .reverse(); 
+                }
+            } else if (typeof rawData === 'object' && rawData !== null) {
+                if (rawData.phien && rawData.ket_qua) {
+                    currentPhien = rawData.phien;
+                    previousResult = rawData.ket_qua;
+                }
+                if (Array.isArray(rawData.history)) {
+                    fullHistory = rawData.history
+                        .filter(r => r === 'Tài' || r === 'Xỉu')
+                        .reverse();
+                } else {
+                    fullHistory = [previousResult].filter(r => r === 'Tài' || r === 'Xỉu');
+                }
+            }
+            
+            if (currentPhien && previousResult) {
+                
+                const historyForAlgo = fullHistory.slice(-100);
+
+                if (currentPhien !== lastUpdatedPhien) {
+                    
+                    lastUpdatedPhien = currentPhien;
+                    
+                    const phienDuDoan = parseInt(currentPhien) + 1;
+
+                    if (predictionTimeoutId) clearTimeout(predictionTimeoutId);
+
+                    // Cập nhật giao diện tạm thời (Đang chờ phân tích)
+                    document.getElementById("phien").innerText = `#${phienDuDoan}`;
+                    const duDoanEl = document.getElementById("duDoan");
+                    duDoanEl.innerHTML = '<span style="color:#ffc107;">Đang TÍNH TOÁN VIP PRO...</span>';
+                    duDoanEl.classList.remove("du-doan-tai", "du-doan-xiu");
+                    document.getElementById("cauStatus").innerText = `Lịch sử gần nhất: ${historyForAlgo.slice(-4).join('-')} (${historyForAlgo.length} phiên)`; 
+
+                    // Tạo hiệu ứng trễ 2 giây trước khi hiện kết quả chính thức (GỌI HYBRID VOTE)
+                    predictionTimeoutId = setTimeout(() => {
+                        const duDoanResult = hybridVote(historyForAlgo);
+                        const predictedValue = duDoanResult.prediction;
+                        const probability = duDoanResult.probability;
+
+                        updateDuDoanUI_Enhanced( // Sử dụng hàm hiển thị nâng cao
+                            predictedValue, 
+                            `Tỷ lệ: ${probability}% | Cầu: ${historyForAlgo.slice(-4).join('-')}...`
+                        );
+                        predictionTimeoutId = null;
+                    }, PREDICTION_DELAY_MS);
+                }
+            } else {
+                throw new Error("Dữ liệu phiên không hợp lệ. Vui lòng kiểm tra API.");
+            }
+        } catch (err) {
+            console.error("Lỗi khi fetch dữ liệu:", err.message);
+            document.getElementById("duDoan").innerHTML = `<span style="color:#ff003c;">API Error.</span>`;
+            document.getElementById("cauStatus").innerText = `Lỗi kết nối: ${err.message}`;
+            if (predictionTimeoutId) clearTimeout(predictionTimeoutId);
+            predictionTimeoutId = null;
+        }
+    }
+
+    // ⭐ HÀM UPDATE GIAO DIỆN NÂNG CAO (ĐÃ SỬA LẠI Ở YÊU CẦU TRƯỚC) ⭐
+    function updateDuDoanUI_Enhanced(prediction, status) {
+        const duDoanEl = document.getElementById("duDoan");
+        
+        // Xóa tất cả các lớp màu cũ
+        duDoanEl.classList.remove("du-doan-tai", "du-doan-xiu", "glow-blink");
+        
+        const probabilityMatch = status.match(/Tỷ lệ: ([\d.]+)%/);
+        const probability = probabilityMatch ? parseFloat(probabilityMatch[1]) : 0;
+        
+        let resultHTML = '';
+        let glowStyle = '';
+        let emoji = '';
+
+        // Thiết lập màu và biểu tượng
+        if (prediction === "Tài") {
+            emoji = '🔥';
+            duDoanEl.classList.add("du-doan-tai");
+            glowStyle = 'text-shadow: 0 0 8px #ff0000, 0 0 15px #ff5757;'; // Hiệu ứng đỏ mạnh
+            document.getElementById("soundTai").play().catch(() => {});
+        } else if (prediction === "Xỉu") {
+            emoji = '❄️';
+            duDoanEl.classList.add("du-doan-xiu");
+            glowStyle = 'text-shadow: 0 0 8px #00aaff, 0 0 15px #4dccff;'; // Hiệu ứng xanh mạnh
+            document.getElementById("soundXiu").play().catch(() => {});
+        } 
+
+        // Kiểm tra tỷ lệ cực cao để thêm hiệu ứng nhấp nháy
+        if (probability >= 90.0 || probability <= 10.0) {
+            duDoanEl.classList.add("glow-blink"); 
+        }
+
+        // Tạo HTML kết quả
+        resultHTML = `
+            DỰ ĐOÁN: ${emoji} ${prediction.toUpperCase()} ${emoji} 
+            <br>
+            <strong 
+                class="ty-le" 
+                style="font-size: 1.8em; display: block; margin-top: 8px; ${glowStyle}"
+            >
+                ${probability.toFixed(1)}%
+            </strong>
+        `;
+
+        duDoanEl.innerHTML = resultHTML;
+
+        // Cập nhật trạng thái (lịch sử ngắn)
+        document.getElementById("cauStatus").innerText = status.replace(/Tỷ lệ: ([\d.]+)% \| /, ''); 
+    }
+
+    // --- Logic chuyển đổi giao diện (Giữ nguyên) ---
+    document.getElementById('entry-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const gameLink = document.getElementById('linkInput').value;
+
+        if (!gameLink.trim()) {
+            alert("Vui lòng nhập link game!");
+            return;
+        }
+
+        document.getElementById('gameIframe').src = gameLink;
+
+        document.getElementById('login-screen').classList.add('hidden');
+        document.body.classList.add('game-active');
+        document.getElementById('game-screen').classList.remove('hidden');
+
+        // Khởi chạy tool dự đoán
+        runTool();
+    });
+    
+    // Khởi tạo Copyright
+    document.getElementById('copyright').innerText = `© 2024 LUCKY WIN PREDICTION TOOL | Dev: ${JSON.parse(sessionStorage.getItem('currentUser'))?.name || 'Vip'}`;
+</script>
+
+</body>
+</html>
